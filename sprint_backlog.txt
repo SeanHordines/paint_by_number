@@ -1,0 +1,37 @@
+Sean Hordines, Joshua Garcia, Kaley Hague, Ian Holbrook
+
+Backlog description: Image Processing
+a. Assigned: Sean Hordines
+b. Technical Description: Large images have thousands to millions of color. The app must find the best K colors to describe the image without losing detail. The image must also be scaled to the resolution of the game grid. The image transformations in order are resizing, a color space conversion (rgb to lab), a bilateral filter (to reduce noise), mean shift clustering and k means (to find the best colors), color replacement, and finally converting back to rbg and scaling up.
+c. Difficulty: Hard
+
+● Backlog description: Painting game logic
+a. Assigned: Ian Holbrook
+b. Technical Description: The game model compares the values of the colors that the user paints and compares them against the true colors in the processed image. If they match, the painting is complete and the user "wins".
+c. Difficulty: Medium
+
+● Backlog description: Default image selector
+a. Assigned: Kaley Hague
+b. Technical Description: The menu presents the user with a grid of preselected and preprocessed images. Once an image is selected, they can also specify the size and number of colors. Then the image is retrieved and the game is created.
+c. Difficulty: Medium
+
+● Backlog description: Custom image selector
+a. Assigned: Joshua Garcia
+b. Technical Description: The menu for a custom image allows the user to upload a photo from their camera gallery. There are two sliders that control the size and number of colors to process with. These are passed to image processing to generate the game.
+c. Difficulty: Easy
+
+● Backlog description: Main menu
+a. Assigned: Joshua Garcia
+b. Technical Description: This activity allows the user to choose either a default image or a custom image. It also presents the app settings (TBD).
+c. Difficulty: Easy
+
+● Backlog description: Share game
+a. Assigned: Ian Holbrook
+b. Technical Description: The user will be given the option to send a game to a friend. This will include the image and the game settings used.
+c. Difficulty: Medium
+
+● Backlog description: App icon
+a. Assigned: Kaley Hague
+b. Technical Description: Create an icon for the app on the user's homescreen
+c. Difficulty: Easy
+
