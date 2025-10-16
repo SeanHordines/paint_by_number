@@ -8,7 +8,7 @@ c. Difficulty: Hard
 ● Backlog description: Painting game logic
 a. Assigned: Ian Holbrook
 b. Technical Description: The game model compares the values of the colors that the user paints and compares them against the true colors in the processed image. If they match, the painting is complete and the user "wins".
-c. Difficulty: Medium
+c. Difficulty: Hard
 
 ● Backlog description: Default image selector
 a. Assigned: Kaley Hague
@@ -18,7 +18,7 @@ c. Difficulty: Medium
 ● Backlog description: Custom image selector
 a. Assigned: Joshua Garcia
 b. Technical Description: The menu for a custom image allows the user to upload a photo from their camera gallery. There are two sliders that control the size and number of colors to process with. These are passed to image processing to generate the game.
-c. Difficulty: Easy
+c. Difficulty: Medium
 
 ● Backlog description: Main menu
 a. Assigned: Joshua Garcia
@@ -34,4 +34,10 @@ c. Difficulty: Medium
 a. Assigned: Kaley Hague
 b. Technical Description: Create an icon for the app on the user's homescreen
 c. Difficulty: Easy
+
+● Backlog description: Visual Enhancements
+a. Assigned: TBD
+b. Technical Description: Update the theme and layout to be more aesthetically pleasing and user friendly
+c. Difficulty: Medium
+
 

@@ -1,0 +1,5 @@
+First sprint:
+Sean Hordines - Image processing
+Joshua Garcia - Main menu
+Kaley Hague - Default image selector
+Ian Holbrook - Game logic
