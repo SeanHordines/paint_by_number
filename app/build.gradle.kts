@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.zybooks.paintbynumber"
+    namespace = "com.ungcsci.paintbynumber"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.zybooks.paintbynumber"
+        applicationId = "com.ungcsci.paintbynumber"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
