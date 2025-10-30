@@ -5,87 +5,115 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F9F5FF"
     tools:context=".MainActivity">
 
-    <!--Settings Gear Icon -->
+    <!-- Settings Gear Icon -->
     <ImageButton
         android:id="@+id/settings_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_margin="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:padding="8dp"
         android:contentDescription="@string/settings"
+        android:onClick="onSettingsButtonClick"
+        android:padding="8dp"
         android:src="@drawable/setting_gear"
-        app:tint="#735DA5"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#735DA5" />
 
-    <!-- Centered logo / placeholder text -->
-    <TextView
-        android:id="@+id/paint_by_numbers"
+    <!-- Centered Main Image -->
+    <ImageView
+        android:id="@+id/main_menu_image"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/app_name"
+        android:scaleType="centerCrop"
+        android:src="@drawable/the_starry_night"
+        app:layout_constraintTop_toBottomOf="@id/settings_button"
+        app:layout_constraintBottom_toTopOf="@id/text_and_buttons_section"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.45" />
+
+    <!-- Layout for text and buttons-->
+    <LinearLayout
+        android:id="@+id/text_and_buttons_section"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textSize="18sp"
-        android:textColor="#000000"
-        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/main_menu_image"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.75">
 
-
-    <!-- Button layout -->
-    <LinearLayout
-        android:id="@+id/button_container"
-        style="?android:attr/buttonBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/paint_by_numbers"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Default Images Button -->
-        <Button
-            android:id="@+id/default_images_button"
-            style="?android:attr/buttonBarButtonStyle"
+        <!-- Text -->
+        <TextView
+            android:id="@+id/image_type_select_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/default_images"
-            android:backgroundTint="#735DA5"
-            android:textColor="#FFFFFF"
-            android:layout_marginEnd="16dp"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="8dp"
-            android:radius="20dp" />
+            android:text="@string/image_type_select"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:layout_marginBottom="20dp" />
 
-        <!-- Custom Images Button -->
-        <Button
-            android:id="@+id/custom_images_button"
-            style="?android:attr/buttonBarButtonStyle"
+        <!-- Layout for buttons -->
+        <LinearLayout
+            android:id="@+id/button_container"
+            style="?android:attr/buttonBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/custom_images"
-            android:backgroundTint="#735DA5"
-            android:textColor="#FFFFFF"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="8dp"
-            android:radius="20dp" />
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <!-- Default Button -->
+            <Button
+                android:id="@+id/default_images_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:backgroundTint="#735DA5"
+                android:onClick="onDefaultActivityClick"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:radius="20dp"
+                android:text="@string/default_images"
+                android:textColor="#FFFFFF" />
+
+            <!-- Custom Button -->
+            <Button
+                android:id="@+id/custom_images_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#735DA5"
+                android:onClick="onCustomActivityClick"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                android:radius="20dp"
+                android:text="@string/custom_images"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
     </LinearLayout>
 
+    <!-- Credits -->
     <TextView
         android:id="@+id/group_names"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:alpha="0.6"
         android:text="@string/credits"
-        android:textSize="14sp"
-        android:textColor="#222222"
-        android:layout_marginBottom="8dp"
+        android:textAlignment="center"
+        android:textColor="#735DA5"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

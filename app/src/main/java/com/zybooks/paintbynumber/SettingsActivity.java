@@ -1,45 +1,24 @@
 package com.zybooks.paintbynumber;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-
+        setContentView(R.layout.activity_settings);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-    }
-
-    //Opens SettingsActivity
-    public void onSettingsButtonClick(View view) {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
-    }
-
-
-     //OpensDefaultActivity
-    public void onDefaultActivityClick(View view) {
-        Intent intent = new Intent(this, DefaultActivity.class);
-        startActivity(intent);
-    }
-
-    // Opens CustomActivity
-    public void onCustomActivityClick(View view) {
-        Intent intent = new Intent(this, CustomActivity.class);
-        startActivity(intent);
     }
 }
