@@ -7,8 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.SeekBar; // Import SeekBar
-import android.widget.TextView; // Import TextView
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class ImageSelectionActivity extends AppCompatActivity {
 
     public static final String EXTRA_IMAGE_ID = "com.zybooks.paintbynumber.image_id";
     public static final String EXTRA_GRID_SIZE = "com.zybooks.paintbynumber.grid_size";
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_image_selection);
 
         mGridView = findViewById(R.id.image_grid_view);
         loadImageIds();
@@ -49,24 +49,23 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_game_options, null);
 
-        // Find the new UI elements in the dialog layout
+
         final SeekBar gridSizeSlider = dialogView.findViewById(R.id.grid_size_slider);
         final TextView gridSizeValueText = dialogView.findViewById(R.id.grid_size_value_text);
         final SeekBar colorCountSlider = dialogView.findViewById(R.id.color_count_slider);
         final TextView colorCountValueText = dialogView.findViewById(R.id.color_count_value_text);
 
-        // Define min values for our sliders (SeekBar min is always 0)
+
         final int MIN_GRID_SIZE = 10;
         final int MIN_COLOR_COUNT = 2;
 
-        // setting grid size slider
-        //  initial progress text
+
         gridSizeValueText.setText(String.valueOf(gridSizeSlider.getProgress() + MIN_GRID_SIZE));
 
         gridSizeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // Update the text view as the slider moves
+
                 gridSizeValueText.setText(String.valueOf(progress + MIN_GRID_SIZE));
             }
             @Override
@@ -75,14 +74,13 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        // color counter slider
-        // initial progress text
+
         colorCountValueText.setText(String.valueOf(colorCountSlider.getProgress() + MIN_COLOR_COUNT));
 
         colorCountSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // Update the text view as the slider moves
+
                 colorCountValueText.setText(String.valueOf(progress + MIN_COLOR_COUNT));
             }
             @Override
@@ -92,18 +90,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        // dialog
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView)
                 .setTitle("Game Options")
                 .setPositiveButton("Start", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        // Get the final values from the sliders
+
                         int gridSize = gridSizeSlider.getProgress() + MIN_GRID_SIZE;
                         int colorCount = colorCountSlider.getProgress() + MIN_COLOR_COUNT;
 
-                        // Launch the game with the chosen values
+
                         launchGame(selectedImageId, gridSize, colorCount);
                     }
                 })
@@ -114,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void launchGame(int imageId, int gridSize, int colorCount) {
-        Intent intent = new Intent(MainActivity.this, GameActivity.class);
+        Intent intent = new Intent(ImageSelectionActivity.this, GameActivity.class);
         intent.putExtra(EXTRA_IMAGE_ID, imageId);
         intent.putExtra(EXTRA_GRID_SIZE, gridSize);
         intent.putExtra(EXTRA_COLOR_COUNT, colorCount);

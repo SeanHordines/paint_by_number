@@ -10,7 +10,6 @@
     android:padding="16dp"
     tools:context=".GameActivity">
 
-    <!-- textview is used to display the data passed from MainActivity -->
     <TextView
         android:id="@+id/debug_text_view"
         android:layout_width="wrap_content"
