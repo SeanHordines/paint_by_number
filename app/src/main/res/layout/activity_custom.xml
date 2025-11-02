@@ -1,38 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".CustomActivity">
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/main"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".CustomActivity">
 
-    <!-- Centered logo / placeholder text -->
-    <TextView
-        android:id="@+id/Upload"
+
+<!-- Layout for text and upload buttons-->
+    <LinearLayout
+        android:id="@+id/text_and_buttons_section"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/upload"
-        android:textSize="18sp"
-        android:textColor="#000000"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginBottom="300dp"
+        android:gravity="center"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-    <!-- Upload icon-->
-    <ImageButton
-        android:id="@+id/upload_button"
-        android:layout_width="59dp"
-        android:layout_height="69dp"
-        android:layout_margin="16dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/upload"
-        android:padding="8dp"
-        android:src="@drawable/upload_button"
-        app:tint="#735DA5"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="280dp"
-        tools:layout_editor_absoluteY="539dp" />
+        <TextView
+            android:id="@+id/Upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/upload"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Upload icon-->
+        <ImageButton
+            android:id="@+id/upload_button"
+            android:layout_width="59dp"
+            android:layout_height="69dp"
+            android:layout_margin="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/upload_button"
+            android:padding="8dp"
+            android:src="@drawable/upload_button"
+            app:tint="#735DA5" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
