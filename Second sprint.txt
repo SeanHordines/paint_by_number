@@ -1,0 +1,25 @@
+First sprint:
+Sean Hordines - Application/GitHub integration
+Joshua Garcia - Custom image selector
+Kaley Hague   - App icon
+Ian Holbrook  - Share game
+
+● Backlog description: App/GitHub integration
+a. Assigned: Sean Hordines
+b. Technical Description: Ensure our Gits are up to date and that all of our individual application pieces work together  
+c. Difficulty: Medium
+
+● Backlog description: Custom image selector
+a. Assigned: Joshua Garcia
+b. Technical Description: The menu for a custom image allows the user to upload a photo from their camera gallery. There are two sliders that control the size and number of colors to process with. These are passed to image processing to generate the game.
+c. Difficulty: Medium
+
+● Backlog description: Share game
+a. Assigned: Ian Holbrook
+b. Technical Description: The user will be given the option to send a game to a friend. This will include the image and the game settings used.
+c. Difficulty: Medium
+
+● Backlog description: App icon
+a. Assigned: Kaley Hague
+b. Technical Description: Create an icon for the app on the user's home screen
+c. Difficulty: Easy
