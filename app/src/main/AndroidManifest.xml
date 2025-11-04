@@ -16,6 +16,16 @@
             android:exported="false" />
         <activity
             android:name=".ImageSelectionActivity"
+            android:name=".DefaultActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CustomActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainMenuActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
