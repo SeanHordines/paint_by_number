@@ -12,6 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PaintByNumber">
         <activity
+            android:name=".GameActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ImageSelectionActivity"
             android:name=".DefaultActivity"
             android:exported="false" />
         <activity
