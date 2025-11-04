@@ -79,6 +79,8 @@ public class ImageProcessor {
     private void posterizeImage(int logical_size, int num_colors) {
         // crop image to square
         Bitmap logical_image = cropToSquare(original_image);
+        //denoise using bilateral
+        //logical_image = denoiseBilateral(logical_image, 5, 1.5f, 2.5f);
         // scale to logical size using bilinear interpolation
         logical_image = Bitmap.createScaledBitmap(logical_image, logical_size, logical_size, true);
         // use k-means to identify best colors
@@ -96,16 +98,40 @@ public class ImageProcessor {
         return Bitmap.createBitmap(source, x_offset, y_offset, size, size);
     }
 
-    private Bitmap denoiseBilateral(Bitmap logical_image, float radius, float sigmaColor, float sigmaSpace) {
-        // for each pixel
+    private Bitmap denoiseBilateral(Bitmap logical_image, int radius, float sigmaColor, float sigmaSpace) {
+        int width = logical_image.getWidth();
+        int height = logical_image.getHeight();
+        int num_pixels = width * height;
+        int r = (int) (radius / 2);
+
+        Bitmap output_image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < width; y++) {
+                int curr_pixel = logical_image.getPixel(x, y);
+
+                for (int kx = -r; kx <= r; kx++) {
+                    for (int ky = -r; ky <= r; ky++) {
+                        if (x + kx < 0) continue;
+                        if (y + ky < 0) continue;
+                        if (x + kx >= width) continue;
+                        if (y + ky >= height) continue;
+
+                        int compare_pixel = logical_image.getPixel(x + kx, y + ky);
+                    }
+                }
+            }
+        }
+
         // get the neighbors in the radius
-        // compute 
+        // compute
+        return null;
     }
 
     private Bitmap kMeansPaletteReduction(Bitmap logical_image, int num_colors) {
         int width = logical_image.getWidth();
         int height = logical_image.getHeight();
-        int num_pixels = width*height;
+        int num_pixels = width * height;
 
         int[] pixels = new int[num_pixels];
         logical_image.getPixels(pixels, 0, width, 0, 0, width, height);
