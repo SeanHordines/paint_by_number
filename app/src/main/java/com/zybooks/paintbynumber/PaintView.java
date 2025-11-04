@@ -52,7 +52,7 @@ public class PaintActivity {
             Color.rgb(56, 80, 118)
     };
 
-    public PaintActivity(Context context, AttributeSet attrs) {
+    public PaintView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         //hard-coded color grid (for now)
