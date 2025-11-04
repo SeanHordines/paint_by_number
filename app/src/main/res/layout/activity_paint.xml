@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.zybooks.paint_by_number.PaintActivity
+        android:id="@+id/paintActivity"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF" />
+
+    <!-- hard-coded strings for now-->
+    <Button
+        android:id="@+id/toggleNumbersButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Toggle Numbers"
+        android:layout_margin="16dp" />
+
+    <!-- hard-coded strings for now-->
+    <Button
+        android:id="@+id/admireButton"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Admire Painting"
+        android:visibility="gone"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="150dp" />
+
+    <!-- hard-coded strings for now-->
+    <Button
+        android:id="@+id/mainMenuButton"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Main Menu"
+        android:visibility="gone"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="50dp" />
+
+</LinearLayout>
