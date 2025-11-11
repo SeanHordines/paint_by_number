@@ -1,13 +1,20 @@
 package com.zybooks.paintbynumber;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.*;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.content.Intent;
+import android.net.Uri;
+import androidx.core.content.FileProvider;
+import java.io.File;
+import java.io.FileOutputStream;
 
-public class PaintActivity {
+
+public class PaintView extends View {
     //grid
     private final int rows = 8;
     private final int columns = 8;
@@ -38,6 +45,7 @@ public class PaintActivity {
     //buttons
     private Button admireButton;
     private Button mainMenuButton;
+    private Button shareButton;
 
     //hard-coded color values (for now)
     private int[] colorPalette = {
@@ -104,6 +112,50 @@ public class PaintActivity {
             getContext().startActivity(intent);
         });
     }
+
+    public void setShareButton(Button b) {
+        shareButton = b;
+        shareButton.setOnClickListener(v -> shareCompletedPainting());
+    }
+
+    @SuppressLint("WrongThread")
+    private void shareCompletedPainting() {
+        // Create a bitmap of the current view
+        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        draw(canvas);
+
+        try {
+            // Save the bitmap to the cache directory
+            File cachePath = new File(getContext().getCacheDir(), "images");
+            cachePath.mkdirs();
+            File file = new File(cachePath, "painting.png");
+            FileOutputStream stream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+
+            // Get file URI using FileProvider (defined in manifest)
+            Uri contentUri = FileProvider.getUriForFile(
+                    getContext(),
+                    getContext().getPackageName() + ".fileprovider",
+                    file
+            );
+
+            if (contentUri != null) {
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                shareIntent.setType("image/png"); // ← missing semicolon fixed
+                shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out my finished painting on the Paint By Number App!");
+                getContext().startActivity(Intent.createChooser(shareIntent, "Share your painting via"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -267,6 +319,7 @@ public class PaintActivity {
             showCompletionOverlay = true;
             if (admireButton != null) admireButton.setVisibility(VISIBLE);
             if (mainMenuButton != null) mainMenuButton.setVisibility(VISIBLE);
+            if (shareButton != null) shareButton.setVisibility(VISIBLE);
             invalidate();
         }
     }
