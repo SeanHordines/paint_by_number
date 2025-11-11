@@ -15,8 +15,10 @@
             android:name=".GameActivity"
             android:exported="false" />
         <activity
-            android:name=".ImageSelectionActivity"
             android:name=".DefaultActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ImageSelectionActivity"
             android:exported="false" />
         <activity
             android:name=".SettingsActivity"

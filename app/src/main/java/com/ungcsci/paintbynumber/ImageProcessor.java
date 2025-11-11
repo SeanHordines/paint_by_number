@@ -20,7 +20,14 @@ public class ImageProcessor {
     public ImageProcessor(Context context, Uri uri, int logical_size, int num_colors) {
         this.context = context;
 
-        loadImageFromURI(uri);
+        this.original_image = loadImageFromURI(uri);
+        posterizeImage(logical_size, num_colors);
+    }
+
+    public ImageProcessor(Context context, Bitmap image, int logical_size, int num_colors) {
+        this.context = context;
+
+        this.original_image = image;
         posterizeImage(logical_size, num_colors);
     }
 
@@ -63,17 +70,17 @@ public class ImageProcessor {
         return color_grid;
     }
 
-    private void loadImageFromURI(Uri uri) {
+    private Bitmap loadImageFromURI(Uri uri) {
         original_image = null;
         ContentResolver contentResolver = context.getContentResolver();
         InputStream inputStream = null;
 
         try {
             inputStream = contentResolver.openInputStream(uri);
-            if (inputStream == null) {return;}
+            if (inputStream == null) {return null;}
 
-            original_image = BitmapFactory.decodeStream(inputStream);
-        } catch (FileNotFoundException e) {e.printStackTrace();}
+            return BitmapFactory.decodeStream(inputStream);
+        } catch (FileNotFoundException e) {e.printStackTrace(); return null;}
     }
 
     private void posterizeImage(int logical_size, int num_colors) {
@@ -98,34 +105,63 @@ public class ImageProcessor {
         return Bitmap.createBitmap(source, x_offset, y_offset, size, size);
     }
 
-    private Bitmap denoiseBilateral(Bitmap logical_image, int radius, float sigmaColor, float sigmaSpace) {
+    private Bitmap denoiseBilateral(Bitmap logical_image, int spatial_radius, int color_radius) {
         int width = logical_image.getWidth();
         int height = logical_image.getHeight();
         int num_pixels = width * height;
-        int r = (int) (radius / 2);
 
         Bitmap output_image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
         for (int x = 0; x < width; x++) {
-            for (int y = 0; y < width; y++) {
+            for (int y = 0; y < height; y++) {
                 int curr_pixel = logical_image.getPixel(x, y);
+                int curr_red = (curr_pixel >> 16) & 0xFF;
+                int curr_green = (curr_pixel >> 8) & 0xFF;
+                int curr_blue = curr_pixel & 0xFF;
 
-                for (int kx = -r; kx <= r; kx++) {
-                    for (int ky = -r; ky <= r; ky++) {
-                        if (x + kx < 0) continue;
-                        if (y + ky < 0) continue;
-                        if (x + kx >= width) continue;
-                        if (y + ky >= height) continue;
+                float total_weight = 0;
+                float weighted_sum_red = 0;
+                float weighted_sum_green = 0;
+                float weighted_sum_blue = 0;
 
-                        int compare_pixel = logical_image.getPixel(x + kx, y + ky);
+                for (int dx = -spatial_radius; dx <= spatial_radius; dx++) {
+                    for (int dy = -spatial_radius; dy <= spatial_radius; dy++) {
+                        if (x + dx < 0) continue;
+                        if (y + dy < 0) continue;
+                        if (x + dx >= width) continue;
+                        if (y + dy >= height) continue;
+
+                        int compare_pixel = logical_image.getPixel(x + dx, y + dy);
+                        int compare_red = (compare_pixel >> 16) & 0xFF;
+                        int compare_green = (compare_pixel >> 8) & 0xFF;
+                        int compare_blue = compare_pixel & 0xFF;
+
+                        int dist = (dx * dx) + (dy * dy);
+                        float spatial_weight = Math.max(0, 1 - (dist / (float) (spatial_radius * spatial_radius)));
+
+                        int dr = curr_red - compare_red;
+                        int dg = curr_green - compare_green;
+                        int db = curr_blue - compare_blue;
+
+                        int color_dist = (dr * dr) + (dg * dg) + (db * db);
+                        float color_weight = Math.max(0, 1 - (color_dist / (float) (color_radius * color_radius)));
+
+                        float combined_weight = spatial_weight * color_weight;
+                        total_weight += combined_weight;
+                        weighted_sum_red += combined_weight * compare_red;
+                        weighted_sum_green += combined_weight * compare_green;
+                        weighted_sum_blue += combined_weight * compare_blue;
                     }
                 }
+                curr_red = (int) (weighted_sum_red / total_weight);
+                curr_green = (int) (weighted_sum_green / total_weight);
+                curr_blue = (int) (weighted_sum_blue / total_weight);
+
+                int new_color = (0xFF << 24) + (curr_red << 16) + (curr_green << 8) + (curr_blue);
+                output_image.setPixel(x, y, new_color);
             }
         }
-
-        // get the neighbors in the radius
-        // compute
-        return null;
+        return output_image;
     }
 
     private Bitmap kMeansPaletteReduction(Bitmap logical_image, int num_colors) {
