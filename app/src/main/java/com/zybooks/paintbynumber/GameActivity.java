@@ -1,44 +1,36 @@
 package com.zybooks.paintbynumber;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.TextView;
+import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.ungcsci.paintbynumber.R;
 
 public class GameActivity extends AppCompatActivity {
 
-
-    private static final String TAG = "GameActivity";
+    private PaintView paintView;
+    private Button toggleNumbersButton;
+    private Button admireButton;
+    private Button mainMenuButton;
+    private Button shareButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
+        setContentView(R.layout.activity_paint);
+        //XML references
+        paintView = findViewById(R.id.paintActivity);
+        toggleNumbersButton = findViewById(R.id.toggleNumbersButton);
+        admireButton = findViewById(R.id.admireButton);
+        mainMenuButton = findViewById(R.id.mainMenuButton);
+        shareButton = findViewById(R.id.admireButton);
 
+        //PaintView Button Connection
+        paintView.setAdmireButton(admireButton);
+        paintView.setMainMenuButton(mainMenuButton);
+        paintView.setShareButton(shareButton);
 
-        Intent intent = getIntent();
-
-
-        int imageId = intent.getIntExtra(ImageSelectionActivity.EXTRA_IMAGE_ID, -1);
-        int gridSize = intent.getIntExtra(ImageSelectionActivity.EXTRA_GRID_SIZE, -1);
-        int colorCount = intent.getIntExtra(ImageSelectionActivity.EXTRA_COLOR_COUNT, -1);
-
-        Log.d(TAG, "Received Image ID: " + imageId);
-        Log.d(TAG, "Received Grid Size: " + gridSize);
-        Log.d(TAG, "Received Color Count: " + colorCount);
-
-
-        TextView debugTextView = findViewById(R.id.debug_text_view);
-        if (imageId != -1) {
-
-            String debugText = "Image Resource ID: " + imageId +
-                    "\nGrid Size: " + gridSize +
-                    "\nNumber of Colors: " + colorCount;
-            debugTextView.setText(debugText);
-        } else {
-
-            debugTextView.setText("Error: Could not retrieve game data.");
-        }
+        //Toggle Numbers Button
+        toggleNumbersButton.setOnClickListener(v -> paintView.toggleNumbers());
     }
 }
