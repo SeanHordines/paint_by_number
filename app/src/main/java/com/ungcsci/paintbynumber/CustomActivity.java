@@ -1,6 +1,5 @@
 package com.ungcsci.paintbynumber;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -10,7 +9,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,7 +24,6 @@ public class CustomActivity extends AppCompatActivity {
     private ImageView customImageView;
     private Uri selectedImageUri = null; // 👈 store the image URI
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,12 +52,12 @@ public class CustomActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            selectedImageUri = data.getData(); // 👈 store it for later
+            selectedImageUri = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
                 customImageView.setImageBitmap(bitmap);
 
-                TextView uploadText = findViewById(R.id.upload_text);
+                TextView uploadText = findViewById(R.id.upload_label);
                 uploadText.setText(R.string.change_upload);
             } catch (IOException e) {
                 e.printStackTrace();

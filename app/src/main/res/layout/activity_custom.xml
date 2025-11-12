@@ -21,6 +21,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <ImageView
+            android:id="@+id/custom_image_view"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:contentDescription="@string/app_name"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
         <!-- Label above the upload button -->
         <TextView
             android:id="@+id/upload_label"
@@ -56,7 +66,6 @@
             android:radius="20dp"
             android:text="@string/generate_game_button"
             android:textColor="#FFFFFF" />
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
