@@ -1,0 +1,45 @@
+package com.ungcsci.paintbynumber;
+
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.widget.ImageView;
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.IOException;
+
+public class PreviewImageActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ImageView imageView = new ImageView(this);
+
+        Intent intent = getIntent();
+        String imageUriString = intent.getStringExtra(DefaultImageActivity.EXTRA_IMAGE_URI);
+        int imageId = intent.getIntExtra(DefaultImageActivity.EXTRA_IMAGE_ID, -1);
+        int gridSize = intent.getIntExtra(DefaultImageActivity.EXTRA_GRID_SIZE, -1);
+        int colorCount = intent.getIntExtra(DefaultImageActivity.EXTRA_COLOR_COUNT, -1);
+
+        Bitmap bitmap = null;
+
+        if (imageUriString != null) {
+            Uri imageUri = Uri.parse(imageUriString);
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+            } catch (IOException e) {e.printStackTrace();}
+        }
+        else if (imageId != -1) {
+            bitmap = BitmapFactory.decodeResource(getResources(), imageId);
+        }
+
+        ImageProcessor ip = new ImageProcessor(this, bitmap, gridSize, colorCount);
+        Bitmap new_image = ip.getPosterizedImage(512);
+
+        imageView.setImageBitmap(new_image);
+        setContentView(imageView);
+    }
+}
