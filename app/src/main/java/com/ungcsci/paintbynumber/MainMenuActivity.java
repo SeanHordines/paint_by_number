@@ -1,4 +1,4 @@
-package com.zybooks.paintbynumber;
+package com.ungcsci.paintbynumber;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,7 +31,7 @@ public class MainMenuActivity extends AppCompatActivity {
     }
 
 
-     //OpensDefaultActivity
+     //Opens DefaultActivity
     public void onDefaultActivityClick(View view) {
         Intent intent = new Intent(this, DefaultActivity.class);
         startActivity(intent);

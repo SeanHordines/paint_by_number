@@ -6,5 +6,7 @@
     <string name="settings">Settings</string>
     <string name="credits">Developed by:Joshua Garcia, Kaley Hague, Ian Holbrook, and Sean Hordines</string>
     <string name="upload">Please upload an image</string>
+    <string name="change_upload">Want to upload a different image?</string>
     <string name="upload_button">Upload icon</string>
+    <string name="generate_game_button">Generate Game</string>
 </resources>

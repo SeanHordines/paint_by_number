@@ -1,4 +1,4 @@
-package com.zybooks.paintbynumber;
+package com.ungcsci.paintbynumber;
 
 import android.content.Intent;
 import android.os.Bundle;

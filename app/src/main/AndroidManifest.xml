@@ -16,6 +16,8 @@
             android:exported="false" />
         <activity
             android:name=".ImageSelectionActivity"
+            android:exported="false" />
+        <activity
             android:name=".DefaultActivity"
             android:exported="false" />
         <activity
