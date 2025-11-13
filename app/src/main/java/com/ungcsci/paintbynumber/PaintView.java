@@ -151,7 +151,7 @@ public class PaintView extends View {
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 shareIntent.setType("image/png"); // ← missing semicolon fixed
                 shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-                shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out my finished painting on the Paint By Number App!");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out my finished painting on the Pixel Painter App!");
                 getContext().startActivity(Intent.createChooser(shareIntent, "Share your painting via"));
             }
 
