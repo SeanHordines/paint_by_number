@@ -22,7 +22,7 @@ public class CustomActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
     private ImageView customImageView;
-    private Uri selectedImageUri = null; // 👈 store the image URI
+    private Uri selectedImageUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
