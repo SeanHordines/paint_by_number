@@ -8,49 +8,60 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.content.Intent;
 import android.net.Uri;
 import androidx.core.content.FileProvider;
+import android.view.ScaleGestureDetector;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-
 public class PaintView extends View {
+
     public static final String EXTRA_IMAGE_URI = "com.ungcsci.paintbynumber.image_uri";
-    //game state
+
+    //Game state
     private int selectedColorNumber = 1;
     private boolean showNumbers = true;
     private boolean isComplete = false;
     private boolean showCompletionOverlay = false;
 
     //drawing
-    private Paint paint;
-    private Paint textPaint;
-    private Paint borderPaint;
-    private Paint overlayPaint;
+    private Paint paint, textPaint, borderPaint, overlayPaint, paletteBackgroundPaint;
 
     //color palette
     private int paletteY;
     private final int paletteSize = 100;
     private final int paletteSpacing = 20;
+    private final int paletteRows = 2;
 
     //buttons
-    private Button admireButton;
-    private Button mainMenuButton;
-    private Button shareButton;
-    
+    private Button admireButton, mainMenuButton, shareButton;
+    private ImageButton drawModeButton, zoomModeButton;
+
+    //mode enum
+    private enum Mode { DRAW, ZOOM }
+    private Mode currentMode = Mode.DRAW;
+
+    //zoom & pan
+    private Matrix canvasMatrix = new Matrix();
+    private float scaleFactor = 1f;
+    private final float minScale = 1f, maxScale = 4f;
+    private float lastTouchX, lastTouchY;
+    private int activePointerId = -1;
+    private ScaleGestureDetector scaleDetector;
+    private float maxTransX, maxTransY, minTransX, minTransY;
+
+    //painting
     private int grid_size;
     private int[] colorPalette;
-    private int[][] numberGrid;
-    private int[][] userPaintGrid;
-
+    private int[][] numberGrid, userPaintGrid;
     public Bitmap finished_image;
 
     public PaintView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        //initialize paint objects
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setStyle(Paint.Style.FILL);
 
@@ -66,6 +77,30 @@ public class PaintView extends View {
 
         overlayPaint = new Paint();
         overlayPaint.setColor(Color.argb(180, 0, 0, 0));
+
+        paletteBackgroundPaint = new Paint();
+        paletteBackgroundPaint.setColor(Color.argb(200, 220, 220, 220));
+
+        scaleDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                if (currentMode != Mode.ZOOM) return false;
+
+                float prevScale = scaleFactor;
+                scaleFactor *= detector.getScaleFactor();
+                scaleFactor = Math.max(minScale, Math.min(scaleFactor, maxScale));
+
+                //zoom on pinch focus
+                float focusX = detector.getFocusX();
+                float focusY = detector.getFocusY();
+
+                canvasMatrix.postScale(scaleFactor / prevScale, scaleFactor / prevScale, focusX, focusY);
+                updatePanLimits();
+                constrainMatrix();
+                invalidate();
+                return true;
+            }
+        });
     }
 
     public void loadImageData(int size, int[] palette, int[][] grid, Bitmap posterized_image){
@@ -73,91 +108,84 @@ public class PaintView extends View {
         numberGrid = new int[grid_size][grid_size];
         userPaintGrid = new int[grid_size][grid_size];
         colorPalette = new int[palette.length + 1];
-        colorPalette[0] = 0xFFFFFFFF; // white
+        colorPalette[0] = 0xFFFFFFFF;
         System.arraycopy(palette, 0, colorPalette, 1, palette.length);
 
-        for (int row = 0; row < grid_size; row++) {
-            for (int col = 0; col < grid_size; col++) {
-                int color = grid[row][col];
+        for (int r = 0; r < grid_size; r++) {
+            for (int c = 0; c < grid_size; c++) {
+                int color = grid[r][c];
                 int paletteIndex = -1;
-
                 for (int i = 0; i < palette.length; i++) {
                     if (palette[i] == color) {
                         paletteIndex = i;
                         break;
                     }
                 }
-
-                numberGrid[col][row] = paletteIndex+1;
+                numberGrid[r][c] = paletteIndex + 1;
             }
         }
         finished_image = posterized_image;
     }
 
-    //xml button setters
-    public void setAdmireButton(Button b, Activity parentActivity) {
-        admireButton = b;
-        admireButton.setOnClickListener(v -> {
-//            showCompletionOverlay = false;
-//            admireButton.setVisibility(GONE);
-//            mainMenuButton.setVisibility(GONE);
-//            invalidate();
-            Uri imageUri;
-            try {
-                imageUri = this.saveBitmapToCache(finished_image, this.getContext());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            Intent intent = new Intent(parentActivity, AdmireImageActivity.class);
-            intent.putExtra(EXTRA_IMAGE_URI, imageUri.toString());
-            parentActivity.startActivity(intent);
-        });
-    }
+    private void updatePanLimits() {
+        if (numberGrid == null || grid_size <= 0) return;
 
-    public void setMainMenuButton(Button b) {
-        mainMenuButton = b;
-        mainMenuButton.setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(getContext(), MainMenuActivity.class);
-            getContext().startActivity(intent);
-        });
-    }
+        int width = getWidth();
+        int height = getHeight() - paletteSize * paletteRows - paletteSpacing * (paletteRows + 1);
 
-    public void setShareButton(Button b) {
-        shareButton = b;
-        shareButton.setOnClickListener(v -> shareCompletedPainting());
-    }
+        int cellSize = Math.min(width / grid_size, height / grid_size);
+        float scaledWidth = cellSize * grid_size * scaleFactor;
+        float scaledHeight = cellSize * grid_size * scaleFactor;
 
-    @SuppressLint("WrongThread")
-    private void shareCompletedPainting() {
-        // Create a bitmap of the current view
-        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        draw(canvas);
+        //compute base offsets for centering when zoomed out
+        float baseOffsetX = 0;
+        float baseOffsetY = 0;
 
-        try {
-            // Save the bitmap to the cache directory
-            File cachePath = new File(getContext().getCacheDir(), "images");
-            cachePath.mkdirs();
-            File file = new File(cachePath, "painting.png");
-            FileOutputStream stream = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            stream.close();
+        if (scaledWidth < width) baseOffsetX = (width - scaledWidth) / 2f;
+        if (scaledHeight < height) baseOffsetY = (height - scaledHeight) / 2f;
 
-            // Get file URI using FileProvider (defined in manifest)
-            Uri contentUri = saveBitmapToCache(finished_image, this.getContext());
+        //set matrix to start with centered position if not zoomed/panned
+        float[] values = new float[9];
+        canvasMatrix.getValues(values);
+        float currentScale = values[Matrix.MSCALE_X]; //assume uniform scale
 
-            if (contentUri != null) {
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                shareIntent.setType("image/png"); // ← missing semicolon fixed
-                shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-                shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out my finished painting on the Pixel Painter App!");
-                getContext().startActivity(Intent.createChooser(shareIntent, "Share your painting via"));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        //if no zoom yet (scale == 1) or first time, reset translation to center
+        if (currentScale == 1f) {
+            canvasMatrix.reset();
+            canvasMatrix.postTranslate(baseOffsetX, baseOffsetY);
         }
+
+        //set pan limits relative to base offsets
+        if (scaledWidth > width) {
+            minTransX = width - scaledWidth; //negative
+            maxTransX = 0;
+        } else {
+            minTransX = maxTransX = baseOffsetX;
+        }
+
+        if (scaledHeight > height) {
+            minTransY = height - scaledHeight; //negative
+            maxTransY = 0;
+        } else {
+            minTransY = maxTransY = baseOffsetY;
+        }
+
+        //constrain matrix in case translation went out of bounds
+        constrainMatrix();
+    }
+
+    private void constrainMatrix() {
+        float[] values = new float[9];
+        canvasMatrix.getValues(values);
+
+        float transX = Math.max(minTransX, Math.min(values[Matrix.MTRANS_X], maxTransX));
+        float transY = Math.max(minTransY, Math.min(values[Matrix.MTRANS_Y], maxTransY));
+
+        canvasMatrix.setValues(new float[]{
+                values[Matrix.MSCALE_X], 0, transX,
+                0, values[Matrix.MSCALE_Y], transY,
+                0, 0, 1
+        });
     }
 
     @Override
@@ -167,19 +195,21 @@ public class PaintView extends View {
 
         int width = getWidth();
         int height = getHeight();
-        int paletteHeight = paletteSize + 40;
-        int availableHeight = height - paletteHeight;
+        int paletteAreaHeight = paletteSize * paletteRows + paletteSpacing * (paletteRows + 1);
+
+        int availableHeight = height - paletteAreaHeight;
         int cellSize = Math.min(width / grid_size, availableHeight / grid_size);
-        int xOffset = (width - (cellSize * grid_size)) / 2;
-        int yOffset = (availableHeight - (cellSize * grid_size)) / 2;
+
+        //draw grid
+        canvas.save();
+        canvas.concat(canvasMatrix); // handles centering + pan + zoom
 
         textPaint.setTextSize(cellSize * 0.6f);
 
-        // draw painting grid by iterating through the 2d array
         for (int r = 0; r < grid_size; r++) {
             for (int c = 0; c < grid_size; c++) {
-                int x = xOffset + c * cellSize;
-                int y = yOffset + r * cellSize;
+                int x = c * cellSize;
+                int y = r * cellSize;
 
                 int paintedNum = userPaintGrid[r][c];
                 int correctNum = numberGrid[r][c];
@@ -210,98 +240,156 @@ public class PaintView extends View {
                 }
             }
         }
+        canvas.restore();
 
-        // draw the palette
-        paletteY = height - paletteHeight + 20;
-        int totalWidth = (paletteSize + paletteSpacing) * 8 - paletteSpacing;
-        int startX = (width - totalWidth) / 2;
+        //draw palette background
+        int paletteTop = height - paletteAreaHeight;
+        canvas.drawRect(0, paletteTop, width, height, paletteBackgroundPaint);
 
-        textPaint.setTextSize(paletteSize * 0.5f); // adjust for palette size
+        //draw palette colors (2 rows now to handle > 8 colors)
+        textPaint.setTextSize(paletteSize * 0.5f);
+        int colorsPerRow = 8;
 
         for (int i = 1; i < colorPalette.length; i++) {
-            int x = startX + (i - 1) * (paletteSize + paletteSpacing);
+            int row = (i - 1) / colorsPerRow;
+            int col = (i - 1) % colorsPerRow;
 
-            // draw palette color
+            int x = paletteSpacing + col * (paletteSize + paletteSpacing);
+            int y = paletteTop + paletteSpacing + row * (paletteSize + paletteSpacing);
+
             paint.setColor(colorPalette[i]);
-            canvas.drawRect(x, paletteY, x + paletteSize, paletteY + paletteSize, paint);
+            canvas.drawRect(x, y, x + paletteSize, y + paletteSize, paint);
 
-            // draw palette border
             borderPaint.setColor(Color.DKGRAY);
-            canvas.drawRect(x, paletteY, x + paletteSize, paletteY + paletteSize, borderPaint);
+            canvas.drawRect(x, y, x + paletteSize, y + paletteSize, borderPaint);
 
-            // highlight the selected color
             if (i == selectedColorNumber) {
                 borderPaint.setColor(Color.BLACK);
                 borderPaint.setStrokeWidth(6);
-                canvas.drawRect(x - 4, paletteY - 4, x + paletteSize + 4, paletteY + paletteSize + 4, borderPaint);
+                canvas.drawRect(x - 4, y - 4, x + paletteSize + 4, y + paletteSize + 4, borderPaint);
                 borderPaint.setStrokeWidth(2);
             }
 
-            // draw the corresponding number on each color square
             Paint textShadow = new Paint(textPaint);
             textShadow.setColor(Color.WHITE);
-            canvas.drawText(String.valueOf(i), x + paletteSize / 2f + 2, paletteY + paletteSize / 1.6f + 2, textShadow);
-            canvas.drawText(String.valueOf(i), x + paletteSize / 2f, paletteY + paletteSize / 1.6f, textPaint);
+            canvas.drawText(String.valueOf(i),
+                    x + paletteSize / 2f + 2,
+                    y + paletteSize / 1.6f + 2,
+                    textShadow);
+            canvas.drawText(String.valueOf(i),
+                    x + paletteSize / 2f,
+                    y + paletteSize / 1.6f,
+                    textPaint);
         }
 
-
-        // painting complete logic
         if (showCompletionOverlay) {
-            canvas.drawRect(0, 0, getWidth(), getHeight(), overlayPaint);
+            canvas.drawRect(0, 0, width, height, overlayPaint);
 
             Paint text = new Paint(Paint.ANTI_ALIAS_FLAG);
             text.setColor(Color.WHITE);
             text.setTextAlign(Paint.Align.CENTER);
             text.setTextSize(80);
             text.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
-
-            canvas.drawText("Painting Complete!", getWidth() / 2f, getHeight() / 2f, text);
+            canvas.drawText("Painting Complete!", width / 2f, height / 2f, text);
         }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
+        //always pass the event to the scale detector for zoom gestures
+        scaleDetector.onTouchEvent(event);
+
+        int action = event.getActionMasked();
+
+        if (currentMode == Mode.ZOOM) {
+            switch (action) {
+                case MotionEvent.ACTION_DOWN:
+                    lastTouchX = event.getX();
+                    lastTouchY = event.getY();
+                    activePointerId = event.getPointerId(0);
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    int pointerIndex = event.findPointerIndex(activePointerId);
+                    if (pointerIndex < 0) break;
+
+                    float x = event.getX(pointerIndex);
+                    float y = event.getY(pointerIndex);
+                    float dx = x - lastTouchX;
+                    float dy = y - lastTouchY;
+
+                    canvasMatrix.postTranslate(dx, dy);
+                    constrainMatrix();
+                    invalidate();
+
+                    lastTouchX = x;
+                    lastTouchY = y;
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    activePointerId = -1;
+                    break;
+                case MotionEvent.ACTION_POINTER_UP:
+                    int pointerIndexReleased = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                            >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+                    int pointerId = event.getPointerId(pointerIndexReleased);
+                    if (pointerId == activePointerId) {
+                        int newPointerIndex = pointerIndexReleased == 0 ? 1 : 0;
+                        lastTouchX = event.getX(newPointerIndex);
+                        lastTouchY = event.getY(newPointerIndex);
+                        activePointerId = event.getPointerId(newPointerIndex);
+                    }
+                    break;
+            }
+            return true;
+        }
+
+        //DRAW MODE
+        float rawX = event.getX();
+        float rawY = event.getY();
+
+        //check palette first (always in screen coordinates)
         int width = getWidth();
         int height = getHeight();
-        int paletteHeight = paletteSize + 40;
-        int availableHeight = height - paletteHeight;
-        int cellSize = Math.min(width / grid_size, availableHeight / grid_size);
-        int xOffset = (width - (cellSize * grid_size)) / 2;
-        int yOffset = (availableHeight - (cellSize * grid_size)) / 2;
+        int paletteAreaHeight = paletteSize * paletteRows + paletteSpacing * (paletteRows + 1);
+        int paletteTop = height - paletteAreaHeight;
+        int colorsPerRow = 8;
 
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_MOVE:
-                for (int r = 0; r < grid_size; r++) {
-                    for (int c = 0; c < grid_size; c++) {
-                        int cx = xOffset + c * cellSize;
-                        int cy = yOffset + r * cellSize;
-                        if (x >= cx && x < cx + cellSize && y >= cy && y < cy + cellSize) {
-                            if (userPaintGrid[r][c] != selectedColorNumber) {
-                                userPaintGrid[r][c] = selectedColorNumber;
-                                checkForCompletion();
-                                invalidate();
-                            }
-                            return true;
-                        }
-                    }
-                }
+        for (int i = 1; i < colorPalette.length; i++) {
+            int row = (i - 1) / colorsPerRow;
+            int col = (i - 1) % colorsPerRow;
 
-                int totalWidth = (paletteSize + paletteSpacing) * 8 - paletteSpacing;
-                int startX = (width - totalWidth) / 2;
-                for (int i = 1; i <= 8; i++) {
-                    int px = startX + (i - 1) * (paletteSize + paletteSpacing);
-                    int py = paletteY;
-                    if (x >= px && x <= px + paletteSize && y >= py && y <= py + paletteSize) {
-                        selectedColorNumber = i;
-                        invalidate();
-                        return true;
-                    }
-                }
-                break;
+            int x = paletteSpacing + col * (paletteSize + paletteSpacing);
+            int y = paletteTop + paletteSpacing + row * (paletteSize + paletteSpacing);
+
+            if (rawX >= x && rawX <= x + paletteSize && rawY >= y && rawY <= y + paletteSize) {
+                selectedColorNumber = i;
+                invalidate();
+                return true;
+            }
         }
+
+        //convert touch to grid coordinates using inverse matrix
+        float[] touchPoint = new float[]{rawX, rawY};
+        Matrix inverse = new Matrix();
+        canvasMatrix.invert(inverse);
+        inverse.mapPoints(touchPoint);
+        float gridX = touchPoint[0];
+        float gridY = touchPoint[1];
+
+        int availableHeight = height - paletteAreaHeight;
+        int cellSize = Math.min(width / grid_size, availableHeight / grid_size);
+
+        int col = (int)(gridX / cellSize);
+        int row = (int)(gridY / cellSize);
+
+        if (row >= 0 && row < grid_size && col >= 0 && col < grid_size) {
+            if (userPaintGrid[row][col] != selectedColorNumber) {
+                userPaintGrid[row][col] = selectedColorNumber;
+                checkForCompletion();
+                invalidate();
+            }
+        }
+
         return true;
     }
 
@@ -313,11 +401,11 @@ public class PaintView extends View {
                     showCompletionOverlay = false;
                     if (admireButton != null) admireButton.setVisibility(GONE);
                     if (mainMenuButton != null) mainMenuButton.setVisibility(GONE);
+                    if (shareButton != null) shareButton.setVisibility(GONE);
                     return;
                 }
             }
         }
-
         if (!isComplete) {
             isComplete = true;
             showCompletionOverlay = true;
@@ -343,7 +431,80 @@ public class PaintView extends View {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
         }
 
-        // Use FileProvider to get a content URI
         return FileProvider.getUriForFile(context, context.getPackageName() + ".fileprovider", file);
     }
+
+    //xml button setters
+    public void setAdmireButton(Button b, Activity parentActivity) {
+        admireButton = b;
+        admireButton.setOnClickListener(v -> {
+            Uri imageUri;
+            try {
+                imageUri = this.saveBitmapToCache(finished_image, this.getContext());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            Intent intent = new Intent(parentActivity, AdmireImageActivity.class);
+            intent.putExtra(EXTRA_IMAGE_URI, imageUri.toString());
+            parentActivity.startActivity(intent);
+        });
+    }
+
+    public void setMainMenuButton(Button b) {
+        mainMenuButton = b;
+        mainMenuButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), MainMenuActivity.class);
+            getContext().startActivity(intent);
+        });
+    }
+
+    public void setShareButton(Button b) {
+        shareButton = b;
+        shareButton.setOnClickListener(v -> {
+            Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            draw(canvas);
+
+            try {
+                File cachePath = new File(getContext().getCacheDir(), "images");
+                cachePath.mkdirs();
+                File file = new File(cachePath, "painting.png");
+                FileOutputStream stream = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                stream.close();
+
+                Uri contentUri = saveBitmapToCache(finished_image, this.getContext());
+
+                if (contentUri != null) {
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    shareIntent.setType("image/png");
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out my finished painting on the Pixel Painter app!");
+                    getContext().startActivity(Intent.createChooser(shareIntent, "Share your painting via"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void setDrawModeButton(ImageButton b) {
+        drawModeButton = b;
+        drawModeButton.setOnClickListener(v -> {
+            currentMode = Mode.DRAW;
+            drawModeButton.setAlpha(1f);
+            if (zoomModeButton != null) zoomModeButton.setAlpha(0.5f);
+        });
+    }
+
+    public void setZoomModeButton(ImageButton b) {
+        zoomModeButton = b;
+        zoomModeButton.setOnClickListener(v -> {
+            currentMode = Mode.ZOOM;
+            zoomModeButton.setAlpha(1f);
+            if (drawModeButton != null) drawModeButton.setAlpha(0.5f);
+        });
+    }
+
 }

@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.widget.Button;
+import android.widget.ImageButton;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
@@ -55,11 +57,18 @@ public class GameActivity extends AppCompatActivity {
         admireButton = findViewById(R.id.admireButton);
         mainMenuButton = findViewById(R.id.mainMenuButton);
         shareButton = findViewById(R.id.shareButton);
+        ImageButton drawModeButton = findViewById(R.id.drawModeButton);
+        ImageButton zoomModeButton = findViewById(R.id.zoomModeButton);
+
+
 
         //PaintView Button Connection
         paintView.setAdmireButton(admireButton, this);
         paintView.setMainMenuButton(mainMenuButton);
         paintView.setShareButton(shareButton);
+        paintView.setDrawModeButton(drawModeButton);
+        paintView.setZoomModeButton(zoomModeButton);
+
 
         //Toggle Numbers Button
         toggleNumbersButton.setOnClickListener(v -> paintView.toggleNumbers());
