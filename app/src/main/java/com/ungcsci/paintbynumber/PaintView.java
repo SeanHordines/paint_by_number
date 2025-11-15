@@ -121,7 +121,7 @@ public class PaintView extends View {
                         break;
                     }
                 }
-                numberGrid[r][c] = paletteIndex + 1;
+                numberGrid[c][r] = paletteIndex + 1;
             }
         }
         finished_image = posterized_image;

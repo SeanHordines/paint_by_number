@@ -60,15 +60,12 @@ public class GameActivity extends AppCompatActivity {
         ImageButton drawModeButton = findViewById(R.id.drawModeButton);
         ImageButton zoomModeButton = findViewById(R.id.zoomModeButton);
 
-
-
         //PaintView Button Connection
         paintView.setAdmireButton(admireButton, this);
         paintView.setMainMenuButton(mainMenuButton);
         paintView.setShareButton(shareButton);
         paintView.setDrawModeButton(drawModeButton);
         paintView.setZoomModeButton(zoomModeButton);
-
 
         //Toggle Numbers Button
         toggleNumbersButton.setOnClickListener(v -> paintView.toggleNumbers());
