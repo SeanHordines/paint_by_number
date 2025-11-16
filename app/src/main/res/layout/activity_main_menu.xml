@@ -7,18 +7,17 @@
     android:layout_height="match_parent"
     android:background="#F9F5FF"
     tools:context=".MainMenuActivity">
-
-    <!-- Settings Gear Icon -->
+    <!-- Info-text Button -->
     <ImageButton
-        android:id="@+id/settings_button"
+        android:id="@+id/how_to_play_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_margin="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/settings"
-        android:onClick="onSettingsButtonClick"
+        android:contentDescription="@string/how_to_play"
+        android:onClick="onHowToPlayButtonClick"
         android:padding="8dp"
-        android:src="@drawable/setting_gear"
+        android:src="@drawable/ic_info"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="#735DA5" />
@@ -32,7 +31,7 @@
         android:contentDescription="@string/app_name"
         android:scaleType="centerCrop"
         android:src="@drawable/starry_night_16_32_512"
-        app:layout_constraintTop_toBottomOf="@id/settings_button"
+        app:layout_constraintTop_toBottomOf="@id/how_to_play_button"
         app:layout_constraintBottom_toTopOf="@id/text_and_buttons_section"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,8 +53,9 @@
         <!-- Text -->
         <TextView
             android:id="@+id/image_type_select_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="@string/image_type_select"
             android:textColor="#000000"
             android:textSize="18sp"

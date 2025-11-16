@@ -2,10 +2,10 @@ package com.ungcsci.paintbynumber.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val Blue80 = Color(0xFFB3C7E6)
+val BlueGrey80 = Color(0xFFB0BCCF)
+val Cyan80 = Color(0xFFB2EBF2)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val Blue40 = Color(0xFF1A3A5A)
+val BlueGrey40 = Color(0xFF2C3E50)
+val Cyan40 = Color(0xFF00ACC1)

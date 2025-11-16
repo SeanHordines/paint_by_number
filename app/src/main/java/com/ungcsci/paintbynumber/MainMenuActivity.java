@@ -24,14 +24,14 @@ public class MainMenuActivity extends AppCompatActivity {
         });
     }
 
-    //Opens SettingsActivity
-    public void onSettingsButtonClick(View view) {
-        Intent intent = new Intent(this, SettingsActivity.class);
+    //Opens HowToPlayActivity
+    public void onHowToPlayButtonClick(View view) {
+        Intent intent = new Intent(this, HowToPlayActivity.class);
         startActivity(intent);
     }
 
 
-    //OpensDefaultActivity
+    //Opens DefaultActivity
     public void onDefaultActivityClick(View view) {
         Intent intent = new Intent(this, DefaultImageActivity.class);
         startActivity(intent);
