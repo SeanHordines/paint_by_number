@@ -52,6 +52,7 @@ public class PaintView extends View {
     private int activePointerId = -1;
     private ScaleGestureDetector scaleDetector;
     private float maxTransX, maxTransY, minTransX, minTransY;
+    private final float panPadding = 100f;
 
     //painting
     private int grid_size;
@@ -80,6 +81,12 @@ public class PaintView extends View {
 
         paletteBackgroundPaint = new Paint();
         paletteBackgroundPaint.setColor(Color.argb(200, 220, 220, 220));
+
+        // ensures that the painting grid is properly centered on inflation
+        getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            updatePanLimits();
+            invalidate();
+        });
 
         scaleDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
@@ -155,20 +162,23 @@ public class PaintView extends View {
             canvasMatrix.postTranslate(baseOffsetX, baseOffsetY);
         }
 
-        //set pan limits relative to base offsets
         if (scaledWidth > width) {
-            minTransX = width - scaledWidth; //negative
-            maxTransX = 0;
+            minTransX = width - scaledWidth - panPadding;
+            maxTransX = panPadding;
         } else {
-            minTransX = maxTransX = baseOffsetX;
+            // Still center, but allow some sway
+            minTransX = baseOffsetX - panPadding;
+            maxTransX = baseOffsetX + panPadding;
         }
 
         if (scaledHeight > height) {
-            minTransY = height - scaledHeight; //negative
-            maxTransY = 0;
+            minTransY = height - scaledHeight - panPadding;
+            maxTransY = panPadding;
         } else {
-            minTransY = maxTransY = baseOffsetY;
+            minTransY = baseOffsetY - panPadding;
+            maxTransY = baseOffsetY + panPadding;
         }
+
 
         //constrain matrix in case translation went out of bounds
         constrainMatrix();
@@ -202,7 +212,7 @@ public class PaintView extends View {
 
         //draw grid
         canvas.save();
-        canvas.concat(canvasMatrix); // handles centering + pan + zoom
+        canvas.concat(canvasMatrix);
 
         textPaint.setTextSize(cellSize * 0.6f);
 
@@ -246,15 +256,31 @@ public class PaintView extends View {
         int paletteTop = height - paletteAreaHeight;
         canvas.drawRect(0, paletteTop, width, height, paletteBackgroundPaint);
 
-        //draw palette colors (2 rows now to handle > 8 colors)
+        // draw color palette now centered
         textPaint.setTextSize(paletteSize * 0.5f);
         int colorsPerRow = 8;
+
+        // new smart width wow
+        int itemWidth = paletteSize + paletteSpacing;
 
         for (int i = 1; i < colorPalette.length; i++) {
             int row = (i - 1) / colorsPerRow;
             int col = (i - 1) % colorsPerRow;
 
-            int x = paletteSpacing + col * (paletteSize + paletteSpacing);
+            // how many colors are actually in this row?
+            int totalColorsThisRow = Math.min(
+                    colorsPerRow,
+                    colorPalette.length - 1 - row * colorsPerRow
+            );
+
+            // total width of this row
+            int rowWidth = totalColorsThisRow * paletteSize
+                    + (totalColorsThisRow + 1) * paletteSpacing;
+
+            // horizontally centered start position
+            int startX = (width - rowWidth) / 2 + paletteSpacing;
+
+            int x = startX + col * (paletteSize + paletteSpacing);
             int y = paletteTop + paletteSpacing + row * (paletteSize + paletteSpacing);
 
             paint.setColor(colorPalette[i]);
@@ -358,7 +384,18 @@ public class PaintView extends View {
             int row = (i - 1) / colorsPerRow;
             int col = (i - 1) % colorsPerRow;
 
-            int x = paletteSpacing + col * (paletteSize + paletteSpacing);
+            // how many colors in this row
+            int totalColorsThisRow = Math.min(
+                    colorsPerRow,
+                    colorPalette.length - 1 - row * colorsPerRow
+            );
+
+            int rowWidth = totalColorsThisRow * paletteSize
+                    + (totalColorsThisRow + 1) * paletteSpacing;
+
+            int startX = (width - rowWidth) / 2 + paletteSpacing;
+
+            int x = startX + col * (paletteSize + paletteSpacing);
             int y = paletteTop + paletteSpacing + row * (paletteSize + paletteSpacing);
 
             if (rawX >= x && rawX <= x + paletteSize && rawY >= y && rawY <= y + paletteSize) {
@@ -366,6 +403,10 @@ public class PaintView extends View {
                 invalidate();
                 return true;
             }
+        }
+
+        if (rawY >= paletteTop) {
+            return true;
         }
 
         //convert touch to grid coordinates using inverse matrix
