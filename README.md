@@ -4,10 +4,11 @@ Pixel Painter is an Android application that converts photos into a simplified, 
 
 ## Overview
 
-This app allows users to upload a photo, automatically reduce its colors, generate numbered paint regions, and color them in-app.
+This app allows users to upload a photo, automatically create a simplified pixelated verison, generate numbered paint regions, and color them in-app.
 
 ## Features
 
+* **Curated Images** - Select a famous piece of artwork
 * **Photo Importing** – Select images from local camera roll 
 * **Custom Painting Image Processor** – Converts images into a paint-by-number palette using k-means palette reduction.
 * **Interactive Coloring Mode** – Tap regions of the grid to fill them with their correct color.
