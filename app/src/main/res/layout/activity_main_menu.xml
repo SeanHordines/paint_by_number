@@ -30,7 +30,7 @@
         android:adjustViewBounds="true"
         android:contentDescription="@string/app_name"
         android:scaleType="centerCrop"
-        android:src="@drawable/starry_night_16_32_512"
+        android:src="@drawable/menu_splash"
         app:layout_constraintTop_toBottomOf="@id/how_to_play_button"
         app:layout_constraintBottom_toTopOf="@id/text_and_buttons_section"
         app:layout_constraintStart_toStartOf="parent"

@@ -236,7 +236,7 @@ public class PaintView extends View {
                     canvas.drawRect(x, y, x + cellSize, y + cellSize, errorBorder);
                 }
 
-                if (showNumbers) {
+                if (showNumbers && paintedNum != correctNum) {
                     Paint textShadow = new Paint(textPaint);
                     textShadow.setColor(Color.WHITE);
                     canvas.drawText(String.valueOf(correctNum),

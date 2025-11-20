@@ -119,7 +119,7 @@ public class DefaultImageActivity extends AppCompatActivity {
                     String name = field.getName();
 
                     // Only include drawables with your chosen prefix
-                    if (name.startsWith("myimg_")) {
+                    if (name.startsWith("myimg")) {
                         mImageIds.add(field.getInt(null));
                     }
                 }

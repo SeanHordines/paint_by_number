@@ -9,7 +9,7 @@ This app allows users to upload a photo, automatically reduce its colors, genera
 ## Features
 
 * **Photo Importing** – Select images from local camera roll 
-* **Custom Painting Image Processor** – Converts images into a paint-by-number palette using complex algorithms.
+* **Custom Painting Image Processor** – Converts images into a paint-by-number palette using k-means palette reduction.
 * **Interactive Coloring Mode** – Tap regions of the grid to fill them with their correct color.
 * **Zoom & Pan** – Switch between paint mode and zoom mode to navigate easily.
 * **Share Options** – View the completed painting or export it and share with a friend.
